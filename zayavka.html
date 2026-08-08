@@ -26,31 +26,40 @@
 
   </div>
   <!-- ═══ Шаги лапок: одна вперёд, потом вторая ═══ -->
-  <script>
+    <script>
   (function(){
     var pawA = document.querySelector('.pwalk'), pawB = document.querySelector('.pwalk.alt');
     if (!pawA || !pawB) return;
     var CELL = 54, PAUSE = 320;          // шаг = одна клетка, пауза между шагами
-    var xa = -20, xb = -20 - CELL, dir = 1, turn = 0;
+    var xa = -20, xb = -20 - CELL, turn = 0;
     function step(el, x){
       // подъём лапки (опора на пятку — низ), тянется вперёд
       el.style.transition = 'transform 80ms ease-in';
-      el.style.transform = 'translateX(' + x + 'px) translateY(-7px) rotate(' + (16 * dir) + 'deg)';
+      el.style.transform = 'translateX(' + x + 'px) translateY(-7px) rotate(16deg)';
       setTimeout(function(){
         // опускание на новую клетку
         el.style.transition = 'transform 190ms cubic-bezier(.2,.6,.35,1)';
         el.style.transform = 'translateX(' + x + 'px) translateY(0) rotate(0deg)';
       }, 80);
     }
+    function teleport(el, x){
+      el.style.transition = 'none';
+      el.style.transform = 'translateX(' + x + 'px) translateY(0) rotate(0deg)';
+    }
     function loop(){
-      var x = (turn ? xb : xa) + CELL * dir;
-      if (turn) xb = x; else xa = x;
-      step(turn ? pawB : pawA, x);
-      turn = 1 - turn;
       var vw = window.innerWidth;
-      var front = dir > 0 ? Math.max(xa, xb) : Math.min(xa, xb);
-      if (front > vw + 30) dir = -1;
-      if (front < -30) dir = 1;
+      var x = (turn ? xb : xa) + CELL;          // всегда шагаем вправо
+      var el = turn ? pawB : pawA;
+      if (x > vw + 40) {
+        // лапка уперлась в правый край — отражается и снова выходит слева
+        x = -90;
+        if (turn) xb = x; else xa = x;
+        teleport(el, x);
+      } else {
+        if (turn) xb = x; else xa = x;
+        step(el, x);
+      }
+      turn = 1 - turn;
       setTimeout(loop, PAUSE);
     }
     setTimeout(loop, 500);
