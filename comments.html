@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отзывы — Передержка животных | Кристина</title>
+<meta name="description" content="Живые отзывы о передержке животных. Напишите свой — он сразу появится в ленте.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .star-row{display:flex;gap:6px;justify-content:center}
+  .star-row label{font-size:30px;cursor:pointer;transition:transform .15s}
+  .star-row label:hover{transform:scale(1.2)}
+  .star-row input{display:none}
+  .star-row label{color:#E5D3BE}
+  .star-row label.on{color:var(--amber)}
+  .rating-hint{text-align:center;font-size:12px;color:var(--soft);font-weight:800;margin-top:2px}
+
+  /* ═══ Летящая лента отзывов ═══ */
+  .marquee{overflow:hidden;background:linear-gradient(90deg,#FFF1E2,#FFE7CE);border-top:3px solid #fff;border-bottom:3px solid #fff;padding:16px 0;position:relative}
+  .marquee::before,.marquee::after{content:'';position:absolute;top:0;bottom:0;width:50px;z-index:2;pointer-events:none}
+  .marquee::before{left:0;background:linear-gradient(90deg,#FFE7CE,transparent)}
+  .marquee::after{right:0;background:linear-gradient(270deg,#FFE7CE,transparent)}
+  .marquee-track{display:flex;gap:14px;width:max-content;animation:marq 45s linear infinite}
+  .marquee:hover .marquee-track{animation-play-state:paused}
+  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .marquee-item{flex:0 0 auto;width:min(290px,74vw);background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 16px rgba(42,33,28,.08)}
+  .marquee-item .stars{color:var(--amber);letter-spacing:2px;font-size:13px}
+  .marquee-item .m-name{font-weight:900;font-size:14px;margin-top:5px}
+  .marquee-item .m-text{font-size:13px;color:var(--soft);margin-top:6px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+</head>
+<body>
+
+  <header class="ph">
+    <div class="pw">
+      <a class="back" href="index.html">← На главную</a>
+      <div class="logo">🐾 Отель «Хвостик»<small>Отзывы</small></div>
+    </div>
+  </header>
+
+  <!-- ═══ Летящая лента отзывов ═══ -->
+  <div class="marquee">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+
+  <section class="intro">
+    <h1>Живые <span>отзывы</span></h1>
+    <p>Реальные комментарии от хозяев. Напишите свой — он сразу появится в ленте!</p>
+  </section>
+
+  <section class="form-sec">
+    <div class="form-card">
+      <form id="comForm">
+        <input name="name" type="text" placeholder="Ваше имя" required>
+        <div class="star-row" id="starRow">
+          <input type="radio" name="rating" value="5" id="s5" checked>
+          <input type="radio" name="rating" value="4" id="s4">
+          <input type="radio" name="rating" value="3" id="s3">
+          <input type="radio" name="rating" value="2" id="s2">
+          <input type="radio" name="rating" value="1" id="s1">
+          <label for="s1" data-v="1">⭐</label><label for="s2" data-v="2">⭐</label><label for="s3" data-v="3">⭐</label><label for="s4" data-v="4">⭐</label><label for="s5" data-v="5">⭐</label>
+        </div>
+        <div class="rating-hint" id="ratingHint">Оценка: 5 из 5</div>
+        <textarea name="text" placeholder="Что скажете об отеле? Как всё прошло?" required></textarea>
+        <button class="btn" type="submit">💬 Оставить отзыв</button>
+        <div class="ok" id="ok">✅ Спасибо! Ваш отзыв уже летит в ленте.</div>
+        <div class="err" id="err"></div>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="paw">🐾</div>
+    <p>Передержка животных — забота и комфорт для вашего питомца</p>
+    <p><a href="tel:+79892879168">+7 989 287-91-68</a> · Кристина</p>
+  </footer>
+
+  <script>
+    var stars = document.querySelectorAll('#starRow label');
+    var radios = document.querySelectorAll('#starRow input');
+    function paint(v){
+      stars.forEach(function(l){ l.classList.toggle('on', parseInt(l.dataset.v) <= v); });
+      document.getElementById('ratingHint').textContent = 'Оценка: ' + v + ' из 5';
+    }
+    radios.forEach(function(r){ r.addEventListener('change', function(){ paint(parseInt(this.value)); }); });
+    paint(5);
+
+    var seen = {};
+    var mtrack = document.getElementById('marqueeTrack');
+    var built = false;
+
+    function starsHtml(n){ return '★'.repeat(n) + '☆'.repeat(5 - n); }
+    function marqueeHtml(c){
+      return '<div class="marquee-item">' +
+        '<div class="stars">' + starsHtml(c.rating) + '</div>' +
+        '<div class="m-name">🐾 ' + c.name + '</div>' +
+        '<div class="m-text">' + c.text + '</div></div>';
+    }
+    function buildMarquee(list){
+      // двойной набор — бесшовный пролёт
+      mtrack.innerHTML = list.concat(list).map(marqueeHtml).join('');
+    }
+    function load(){
+      fetch('/api/comments').then(function(r){ return r.json(); })
+        .then(function(list){
+          if (!list.length){ buildMarquee([{id:0,name:'Пока нет отзывов',text:'Напишите первый — он появится здесь!',rating:5}]); return; }
+          if (!built){ buildMarquee(list); list.forEach(function(c){ seen[c.id]=true; }); built = true; return; }
+          var fresh = list.filter(function(c){ return !seen[c.id]; });
+          if (fresh.length){ buildMarquee(list); fresh.forEach(function(c){ seen[c.id]=true; }); }
+        })
+        .catch(function(){ if(!built) mtrack.innerHTML = '<div class="marquee-item"><div class="m-text">Не удалось загрузить отзывы.</div></div>'; });
+    }
+    document.getElementById('comForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var f = this;
+      var rating = parseInt((document.querySelector('#starRow input:checked')||{}).value || 5);
+      fetch('/api/comments', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name: f.name.value, text: f.text.value, rating: rating })
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if (res.ok){
+          f.reset();
+          paint(5);
+          document.getElementById('ok').style.display = 'block';
+          document.getElementById('err').style.display = 'none';
+          setTimeout(function(){ document.getElementById('ok').style.display = 'none'; }, 5000);
+          load();
+        } else {
+          document.getElementById('err').textContent = res.error || 'Ошибка';
+          document.getElementById('err').style.display = 'block';
+        }
+      }).catch(function(){
+        document.getElementById('err').textContent = 'Сеть недоступна, попробуйте ещё раз.';
+        document.getElementById('err').style.display = 'block';
+      });
+    });
+    load();
+    setInterval(load, 6000); // живые: подтягиваем новые отзывы
+  </script>
+</body>
+</html>

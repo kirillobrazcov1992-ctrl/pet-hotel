@@ -1,0 +1,14 @@
+{
+  "name": "pet-hotel",
+  "version": "1.0.0",
+  "description": "Передержка животных — отель для питомцев. Заявки и живые отзывы.",
+  "type": "commonjs",
+  "main": "server.cjs",
+  "scripts": {
+    "start": "node server.cjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.22.2"
+  }
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Оставить заявку на размещение животного — Передержка | Кристина</title>
+<meta name="description" content="Оставьте заявку на передержку питомца: имя, телефон, даты. Все заявки видны на странице.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="ph">
+    <div class="pw">
+      <a class="back" href="index.html">← На главную</a>
+      <div class="logo">🐾 Отель «Хвостик»<small>Заявка на размещение</small></div>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h1>Оставьте заявку <span>на размещение питомца</span></h1>
+    <p>Заполните форму — Кристина свяжется с вами. Все заявки висят на этой странице и видны каждому.</p>
+  </section>
+
+  <section class="form-sec">
+    <div class="form-card">
+      <form id="reqForm">
+        <input name="name" type="text" placeholder="Ваше имя" required>
+        <input name="phone" type="tel" placeholder="Телефон" required>
+        <select name="pet" required>
+          <option value="" disabled selected>Кого привезёте?</option>
+          <option>🐕 Собака</option>
+          <option>🐈 Кошка</option>
+          <option>🐹 Грызун / кролик</option>
+          <option>🦜 Птица</option>
+          <option>🐢 Другое</option>
+        </select>
+        <input name="dates" type="text" placeholder="На какие даты? (например: 1–20 июля)">
+        <textarea name="msg" placeholder="Расскажите о питомце: порода, характер, особенности ухода..."></textarea>
+        <button class="btn" type="submit">📨 Отправить заявку</button>
+        <div class="ok" id="ok">✅ Заявка отправлена! Она появилась в списке ниже.</div>
+        <div class="err" id="err"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="list-sec">
+    <div class="wrap">
+      <h2>Все заявки <span id="cnt" style="color:var(--orange)">0</span></h2>
+      <div class="reqs" id="reqs"><p style="text-align:center;color:var(--soft)">Загрузка...</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="paw">🐾</div>
+    <p>Передержка животных — забота и комфорт для вашего питомца</p>
+    <p><a href="tel:+79892879168">+7 989 287-91-68</a> · Кристина</p>
+  </footer>
+
+  <script>
+    var petEmoji = { 'Собака':'🐕', 'Кошка':'🐈', 'Грызун / кролик':'🐹', 'Птица':'🦜', 'Другое':'🐾' };
+    function petName(p){
+      var key = p.replace('🐕 ','').replace('🐈 ','').replace('🐹 ','').replace('🦜 ','').replace('🐢 ','');
+      return key;
+    }
+    function render(list){
+      var box = document.getElementById('reqs');
+      document.getElementById('cnt').textContent = list.length;
+      if (!list.length){ box.innerHTML = '<p style="text-align:center;color:var(--soft)">Пока заявок нет — станьте первым! 🐾</p>'; return; }
+      box.innerHTML = list.map(function(r){
+        var em = petEmoji[petName(r.pet)] || '🐾';
+        var phone = r.phone.replace(/[^+\d]/g,'');
+        return '<div class="req-card">' +
+          '<div class="req-top"><b>' + em + ' ' + r.pet + '</b>' +
+          '<span class="pet-badge">' + r.created + '</span></div>' +
+          '<div class="req-line"><b>' + r.name + '</b> · 📞 <a href="tel:' + phone + '">' + r.phone + '</a></div>' +
+          (r.dates ? '<div class="req-line">📅 ' + r.dates + '</div>' : '') +
+          (r.msg ? '<div class="req-msg">' + r.msg + '</div>' : '') +
+        '</div>';
+      }).join('');
+    }
+    function load(){
+      fetch('/api/requests').then(function(r){ return r.json(); })
+        .then(function(list){ render(list); })
+        .catch(function(){ document.getElementById('reqs').innerHTML = '<p style="text-align:center;color:var(--soft)">Не удалось загрузить заявки. Обновите страницу.</p>'; });
+    }
+    document.getElementById('reqForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var f = this;
+      var body = {
+        name: f.name.value,
+        phone: f.phone.value,
+        pet: petName(f.pet.value),
+        dates: f.dates.value,
+        msg: f.msg.value
+      };
+      fetch('/api/requests', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if (res.ok){
+          f.reset();
+          document.getElementById('ok').style.display = 'block';
+          document.getElementById('err').style.display = 'none';
+          setTimeout(function(){ document.getElementById('ok').style.display = 'none'; }, 5000);
+          load();
+        } else {
+          document.getElementById('err').textContent = res.error || 'Ошибка';
+          document.getElementById('err').style.display = 'block';
+        }
+      }).catch(function(){
+        document.getElementById('err').textContent = 'Сеть недоступна, попробуйте ещё раз.';
+        document.getElementById('err').style.display = 'block';
+      });
+    });
+    load();
+    setInterval(load, 8000); // заявки «висят» и обновляются сами
+  </script>
+</body>
+</html>

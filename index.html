@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Передержка животных — забота и комфорт для вашего питомца | Кристина</title>
+<meta name="description" content="Передержка животных: уютное проживание, кормление по расписанию, прогулки и игры, фотоотчёты. Обращайтесь: +7 989 287-91-68 (Кристина).">
+<meta name="theme-color" content="#F97316">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --cream:#FFF8F0; --card:#FFFFFF; --ink:#2A211C; --soft:#5D524A;
+    --orange:#F97316; --amber:#F59E0B; --teal:#0D9488;
+    --line:#F3E4D4; --wa:#25D366; --wa2:#128C7E; --tg:#229ED9; --mx:#3E6DA5; --green:#16A34A;
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Nunito',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .critter,.floaty{display:none}
+  }
+
+  /* ═══ HERO: фото целиком, значки внизу ═══ */
+  .hero{position:relative;background:#2A211C;line-height:0}
+  .hero img.bg{display:block;width:100%;height:auto}
+  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.3) 88%);pointer-events:none}
+  .hero-icons{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;gap:10px;z-index:3;flex-wrap:nowrap}
+  .h-icon{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.85);border-radius:999px;padding:5px 13px 5px 5px;box-shadow:0 8px 20px rgba(0,0,0,.3);transition:transform .15s}
+  .h-icon:hover{transform:translateY(-3px) scale(1.05)}
+  .h-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.22)}
+  .h-icon.vk .h-ico{background:linear-gradient(135deg,#0077FF,#005FCC);font-size:14px;font-weight:900}
+  .h-icon.mx .h-ico{background:linear-gradient(135deg,#4C75A3,#2E5A8C);font-size:18px}
+  .h-icon.zay .h-ico{background:linear-gradient(135deg,var(--orange),var(--amber));font-size:18px}
+  .h-icon.otz .h-ico{background:linear-gradient(135deg,#F472B6,#EC4899);font-size:18px}
+  .h-lbl{font-size:12.5px;font-weight:900;color:var(--ink);white-space:nowrap}
+  @media(max-width:430px){
+    .hero-icons{bottom:22px;gap:7px}
+    .h-icon{padding:4px 9px 4px 4px;gap:6px}
+    .h-ico{width:29px;height:29px;font-size:15px}
+    .h-icon.vk .h-ico{font-size:12px}
+    .h-lbl{font-size:10.5px}
+  }
+
+  /* ═══ Бегущая дорожка ═══ */
+  .runway{position:relative;height:120px;overflow:hidden;background:linear-gradient(180deg,#FFF1E2,#FFE7CE);border-top:3px solid #fff;border-bottom:3px solid #fff}
+  .critter{position:absolute;top:0;will-change:transform;filter:drop-shadow(0 8px 12px rgba(42,33,28,.18))}
+  .critter i{display:inline-block;font-style:normal;font-size:clamp(26px,4.5vw,40px);animation:bob .75s ease-in-out infinite alternate}
+  .c1{animation:runR 15s linear infinite;top:14px}.c1 i{animation-delay:.1s}
+  .c2{animation:runL 19s linear infinite;top:44px}.c2 i{animation-delay:.5s}
+  .c3{animation:runR 22s linear infinite;top:72px}.c3 i{animation-delay:.3s}
+  .c4{animation:runL 15s linear infinite;top:24px}.c4 i{animation-delay:.8s}
+  .c5{animation:runR 26s linear infinite;top:84px}.c5 i{animation-delay:.2s}
+  .c6{animation:runL 21s linear infinite;top:56px}.c6 i{animation-delay:.6s}
+  .c7{animation:runR 18s linear infinite;top:40px}.c7 i{animation-delay:.9s}
+  @keyframes runR{from{transform:translateX(-16vw)}to{transform:translateX(116vw)}}
+  @keyframes runL{from{transform:translateX(116vw)}to{transform:translateX(-16vw)}}
+  @keyframes bob{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(-10px) rotate(8deg)}}
+
+  /* ═══ Секции ═══ */
+  section{padding:52px 20px}
+  .wrap{max-width:1100px;margin:0 auto}
+  .rev{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
+  .rev.in{opacity:1;transform:none}
+
+  .intro{text-align:center;padding-top:44px}
+  h1{font-size:clamp(24px,5vw,40px);font-weight:900;line-height:1.2}
+  h1 .grad{background:linear-gradient(90deg,var(--orange),var(--amber));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{color:var(--soft);max-width:680px;margin:16px auto 0;font-size:clamp(15px,3.2vw,18px);font-weight:600}
+
+  h2{font-size:clamp(22px,4vw,32px);font-weight:900;text-align:center;line-height:1.15}
+  .serv-tag{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:900;font-size:clamp(16px,3.5vw,20px);color:var(--orange);margin-bottom:24px}
+  .services{display:grid;gap:14px;margin-top:26px}
+  .serv{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px;box-shadow:0 6px 18px rgba(42,33,28,.05)}
+  .serv .ic{font-size:25px;flex-shrink:0;background:#FFF1E2;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+  .serv h3{font-size:16px;font-weight:900}
+  .serv p{font-size:14.5px;color:var(--soft);margin-top:2px}
+  @media(min-width:720px){.services{grid-template-columns:1fr 1fr}}
+
+  /* ═══ Уникальность отеля ═══ */
+  .uni-sec{background:linear-gradient(180deg,var(--cream),#FFF1E2)}
+  .uni-grid{display:grid;gap:16px;margin-top:30px;grid-template-columns:1fr}
+  @media(min-width:680px){.uni-grid{grid-template-columns:repeat(3,1fr)}}
+  .uni-card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 20px 22px;text-align:center;box-shadow:0 8px 22px rgba(42,33,28,.06);transition:transform .2s,box-shadow .2s;overflow:hidden}
+  .uni-card::before{content:'';position:absolute;top:-34px;left:-34px;width:90px;height:90px;background:radial-gradient(circle,rgba(245,158,11,.18),transparent 70%);pointer-events:none}
+  .uni-card:hover{transform:translateY(-6px) rotate(.5deg);box-shadow:0 18px 40px rgba(42,33,28,.13)}
+  .uni-card .ic{font-size:38px;display:inline-block;animation:floaty 4.5s ease-in-out infinite}
+  .uni-card:nth-child(2n) .ic{animation-delay:.9s}
+  .uni-card:nth-child(3n) .ic{animation-delay:1.6s}
+  .uni-card h3{font-size:17px;font-weight:900;margin:12px 0 6px}
+  .uni-card p{font-size:14.5px;color:var(--soft)}
+  .uni-tag{display:inline-block;margin-top:12px;font-size:12px;font-weight:900;color:var(--teal);background:#E6F6F4;border:1px solid #BFE8E3;padding:5px 12px;border-radius:999px}
+
+  /* ═══ Условия содержания ═══ */
+  .cond-sec{background:linear-gradient(135deg,#FFF1E2,#FFE7CE);border-top:3px solid #fff;border-bottom:3px solid #fff}
+  .cond-grid{display:grid;gap:12px;margin-top:28px;grid-template-columns:1fr}
+  @media(min-width:640px){.cond-grid{grid-template-columns:1fr 1fr}}
+  .cond{display:flex;align-items:flex-start;gap:12px;background:rgba(255,255,255,.85);border:1px solid #F5D9B8;border-radius:16px;padding:14px 16px;box-shadow:0 4px 12px rgba(42,33,28,.05)}
+  .cond .ck{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--green),#16A34A);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-top:1px}
+  .cond b{font-size:15px;font-weight:900;display:block}
+  .cond p{font-size:13.5px;color:var(--soft)}
+
+  /* ═══ CTA финал ═══ */
+  .cta-sec{background:linear-gradient(135deg,#FFF1E2,#FFE3C2);border-top:3px solid #fff;border-bottom:3px solid #fff;text-align:center}
+  .cta-sec .big{font-size:clamp(20px,4.5vw,30px);font-weight:900;line-height:1.25}
+  .cta-sec .big span{color:var(--orange)}
+  .cta-sec p{color:var(--soft);margin:12px auto 0;max-width:600px;font-size:16px}
+  .phone-big{display:inline-flex;align-items:center;gap:12px;margin:22px auto 0;font-size:clamp(24px,6vw,38px);font-weight:900}
+  .phone-big .em{font-size:.7em;animation:floaty 4s ease-in-out infinite}
+  .who{font-weight:900;color:var(--orange);font-size:19px;margin-top:2px}
+  .mx-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;background:linear-gradient(90deg,#0077FF,#005FCC);color:#fff;font-weight:900;font-size:17px;padding:16px 32px;border-radius:999px;box-shadow:0 12px 30px rgba(0,119,255,.4);transition:transform .15s}
+  .mx-btn:hover{transform:translateY(-2px) scale(1.02)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;background:linear-gradient(90deg,var(--orange),var(--amber));color:#fff;font-weight:900;font-size:17px;padding:16px 32px;border-radius:999px;box-shadow:0 12px 30px rgba(249,115,22,.4);transition:transform .15s}
+  .btn:hover{transform:translateY(-2px) scale(1.02)}
+  .btn-ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+  .btn-ghost:hover{border-color:var(--amber);color:var(--orange)}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-14px) rotate(8deg)}}
+
+  footer{background:var(--ink);color:#F5E9DE;text-align:center;padding:26px 16px;font-size:14px}
+  footer .paw{font-size:24px}
+  footer a{color:var(--amber);font-weight:800}
+  footer p{opacity:.85;margin-top:6px}
+
+  /* ═══ Плавающая кнопка «Макс» — только приложение ═══ */
+  .fab{position:fixed;bottom:16px;right:16px;z-index:300;width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#0077FF,#005FCC);color:#fff;font-size:22px;font-weight:900;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(0,119,255,.5);transition:transform .15s}
+  .fab:hover{transform:scale(1.08)}
+  .fab::before{content:'';position:absolute;inset:-7px;border-radius:50%;border:2px solid rgba(76,117,163,.55);animation:pulse 1.8s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(.85);opacity:1}100%{transform:scale(1.35);opacity:0}}
+  .fab-label{position:absolute;right:76px;top:50%;transform:translateY(-50%);background:#fff;padding:8px 14px;border-radius:999px;font-weight:900;font-size:14px;color:var(--ink);box-shadow:0 6px 16px rgba(0,0,0,.15);white-space:nowrap;border:1px solid var(--line)}
+  @media(max-width:420px){.fab-label{display:none}}
+</style>
+</head>
+<body>
+
+  <!-- ═══ HERO: фото на весь экран, 2 значка внизу ═══ -->
+  <header class="hero">
+    <img class="bg" src="img/photo-mobile.jpg" alt="Передержка животных"
+         srcset="img/photo-mobile.jpg 800w, img/photo-web.jpg 1200w"
+         sizes="100vw" fetchpriority="high">
+    <div class="hero-icons">
+      <a class="h-icon vk" href="https://vk.ru/kristyusha_breslavec" target="_blank" rel="noopener" title="VK">
+        <span class="h-ico">VK</span><span class="h-lbl">VK</span>
+      </a>
+      <!-- ⚠️ Когда будет аккаунт в Макс — замени ссылку на свой ник (vk.me/твой_ник) -->
+      <a class="h-icon mx" href="https://vk.ru/kristyusha_breslavec" target="_blank" rel="noopener" title="Макс">
+        <span class="h-ico">💬</span><span class="h-lbl">Макс</span>
+      </a>
+      <a class="h-icon zay" href="zayavka.html" title="Оставить заявку">
+        <span class="h-ico">📝</span><span class="h-lbl">Заявка</span>
+      </a>
+      <a class="h-icon otz" href="comments.html" title="Отзывы">
+        <span class="h-ico">⭐</span><span class="h-lbl">Отзывы</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══ Бегущие кошечки, собачки и мышки ═══ -->
+  <div class="runway" aria-hidden="true">
+    <span class="critter c1"><i>🐕</i></span>
+    <span class="critter c2"><i>🐈</i></span>
+    <span class="critter c3"><i>🐹</i></span>
+    <span class="critter c4"><i>🐭</i></span>
+    <span class="critter c5"><i>🐩</i></span>
+    <span class="critter c6"><i>🐈⬛</i></span>
+    <span class="critter c7"><i>🐰</i></span>
+  </div>
+
+  <!-- ═══ Заголовок и вступление ═══ -->
+  <section class="intro">
+    <div class="wrap rev">
+      <h1>🐾 Передержка животных:<br><span class="grad">забота и комфорт для вашего питомца</span> 🐾</h1>
+      <p class="lead">Ищете надёжное место, где о вашем любимце позаботятся, пока вы в отъезде?<br>Предлагаю услуги передержки — ваш питомец будет под присмотром и в безопасности! 🔥</p>
+    </div>
+  </section>
+
+  <!-- ═══ Что входит в услугу ═══ -->
+  <section id="services">
+    <div class="wrap">
+      <div class="serv-tag rev">🐾 Что входит в услугу 🐾</div>
+      <h2 class="rev">Всё для спокойствия <span class="grad">вашего любимца и вас</span></h2>
+      <div class="services">
+        <div class="serv rev"><div class="ic">🏡</div><div><h3>📌 Комфортное проживание ✨</h3><p>Для животных выделено уютное, чистое и безопасное пространство.</p></div></div>
+        <div class="serv rev"><div class="ic">🥕</div><div><h3>📌 Регулярное кормление 🥕</h3><p>По вашему расписанию и с использованием привычного корма.</p></div></div>
+        <div class="serv rev"><div class="ic">🐕🦺</div><div><h3>📌 Прогулки и игры 🐕🦺</h3><p>Ежедневные прогулки для собак и активные игры для кошек и других питомцев.</p></div></div>
+        <div class="serv rev"><div class="ic">🤗</div><div><h3>📌 Контроль самочувствия 🤗</h3><p>Слежу за аппетитом, поведением и общим состоянием.</p></div></div>
+        <div class="serv rev" style="grid-column:1/-1"><div class="ic">📸</div><div><h3>📌 Фото- и видеоотчёты 💕</h3><p>По запросу — чтобы вы были спокойны и видели, как дела у любимца.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Уникальность отеля ═══ -->
+  <section class="uni-sec" id="unique">
+    <div class="wrap">
+      <div class="serv-tag rev">⭐ Уникальность отеля ⭐</div>
+      <h2 class="rev">Почему питомцы <span class="grad">не хотят уезжать</span></h2>
+      <p class="lead rev">Это не «передержка» в клетке, а настоящий гостевой дом — тёплый, домашний и безопасный.</p>
+      <div class="uni-grid">
+        <div class="uni-card rev"><span class="ic">🏡</span><h3>Домашняя атмосфера</h3><p>Без клеток и вольеров: у каждого гостя свой уютный уголок, лежанка и любимые игрушки — как дома.</p><span class="uni-tag">Как дома</span></div>
+        <div class="uni-card rev"><span class="ic">👀</span><h3>Присмотр 24/7</h3><p>Питомец никогда не остаётся один. Внимание, ласка и забота круглосуточно — даже ночью рядом.</p><span class="uni-tag">Не оставим одного</span></div>
+        <div class="uni-card rev"><span class="ic">🍖</span><h3>Привычная еда</h3><p>Кормим только привычным кормом и точно по вашему расписанию. Никакого стресса для желудка.</p><span class="uni-tag">Без смены рациона</span></div>
+        <div class="uni-card rev"><span class="ic">🚶</span><h3>Свобода движения</h3><p>Ежедневные прогулки для собак и активные игры для кошек. Движение — это счастье!</p><span class="uni-tag">Прогулки каждый день</span></div>
+        <div class="uni-card rev"><span class="ic">💚</span><h3>Индивидуальный подход</h3><p>Учитываю характер, привычки и капризы каждого гостя. Стеснительным — больше ласки, активным — больше игр.</p><span class="uni-tag">Свой подход</span></div>
+        <div class="uni-card rev"><span class="ic">📸</span><h3>Полная открытость</h3><p>Фото и видеоотчёты по запросу в любой момент. Вы спокойны — я на связи.</p><span class="uni-tag">Отчёты по запросу</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Условия содержания ═══ -->
+  <section class="cond-sec" id="conditions">
+    <div class="wrap">
+      <div class="serv-tag rev">🏠 Условия содержания 🏠</div>
+      <h2 class="rev">Чисто, тепло, <span class="grad">безопасно</span></h2>
+      <p class="lead rev">Каждый гость живёт в уютных домашних условиях под полным присмотром.</p>
+      <div class="cond-grid">
+        <div class="cond rev"><span class="ck">✓</span><div><b>Идеальная чистота</b><p>Уборка и дезинфекция после каждого гостя — свежо и стерильно.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Безопасность</b><p>Закрытая территория, всё проверено и без опасных мелочей.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Своя лежанка</b><p>Мягкое тёплое спальное место и тишина для крепкого сна.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Свежая вода</b><p>Чистая вода всегда в доступе, в любое время дня и ночи.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Гигиена после прогулок</b><p>Уход за лапами и шерстью — чистый и ухоженный гость.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Забота о здоровье</b><p>Слежу за аппетитом, настроением и самочувствием каждый день.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Комфортная температура</b><p>Прохладно летом и тепло зимой — гостю всегда уютно.</p></div></div>
+        <div class="cond rev"><span class="ck">✓</span><div><b>Вещи питомца</b><p>Можно привезти корм, лежанку и игрушки — всё вернём в целости.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Финальный контакт ═══ -->
+  <section class="cta-sec" id="contact">
+    <div class="wrap">
+      <div class="rev">
+        <div class="big">Подберу <span>индивидуальный подход</span> к вашему питомцу</div>
+        <p>По всем вопросам и для уточнения деталей обращайтесь по телефону или в мессенджер:</p>
+        <a class="phone-big" href="tel:+79892879168"><span class="em">📞</span> +7 989 287-91-68</a>
+        <div class="who">Кристина</div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px">
+          <a class="mx-btn" href="https://vk.ru/kristyusha_breslavec" target="_blank" rel="noopener">💙 Написать в VK</a>
+          <a class="btn" href="zayavka.html">📝 Оставить заявку</a>
+          <a class="btn btn-ghost" href="comments.html">⭐ Отзывы</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="paw">🐾</div>
+    <p>Передержка животных — забота и комфорт для вашего питомца</p>
+    <p><a href="tel:+79892879168">+7 989 287-91-68</a> · Кристина</p>
+    <p style="font-size:12px;opacity:.6">© 2026</p>
+  </footer>
+
+  <!-- ═══ Плавающая кнопка — пока VK, когда будет Макс — заменим ссылку ═══ -->
+  <a class="fab" href="https://vk.ru/kristyusha_breslavec" target="_blank" rel="noopener" aria-label="Написать в VK">VK<span class="fab-label">VK</span></a>
+
+  <script>
+    // ── Появление при прокрутке ──
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: .12 });
+    document.querySelectorAll('.rev').forEach(function(el){ io.observe(el); });
+  </script>
+</body>
+</html>
