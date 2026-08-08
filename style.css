@@ -1,4 +1,9 @@
 *{margin:0;padding:0;box-sizing:border-box}
+
+/* Следы лапок по всему сайту */
+.paws{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden}
+.paws i{position:absolute;font-style:normal;line-height:1;user-select:none}
+
 :root{
   --cream:#FFF8F0; --card:#FFFFFF; --ink:#2A211C; --soft:#5D524A;
   --orange:#F97316; --amber:#F59E0B; --teal:#0D9488; --green:#16A34A;

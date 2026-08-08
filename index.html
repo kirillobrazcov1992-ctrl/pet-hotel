@@ -63,6 +63,10 @@
     .topnav .nav a{padding-left:5px;padding-right:5px}
   }
 
+  /* ═══ Следы лапок по всему сайту ═══ */
+  .paws{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden}
+  .paws i{position:absolute;font-style:normal;line-height:1;user-select:none}
+
   /* ═══ Бегущая дорожка ═══ */
   .runway{position:relative;height:120px;overflow:hidden;background:linear-gradient(180deg,#FFF1E2,#FFE7CE);border-top:3px solid #fff;border-bottom:3px solid #fff}
   .critter{position:absolute;top:0;will-change:transform;filter:drop-shadow(0 8px 12px rgba(42,33,28,.18))}
@@ -156,6 +160,26 @@
 </style>
 </head>
 <body>
+
+  <!-- ═══ Следы лапок по всему сайту ═══ -->
+  <div class="paws" aria-hidden="true">
+    <i style="left:2.0%;top:51.8%;font-size:20.6px;opacity:0.071;transform:rotate(-6deg)">🐾</i>
+    <i style="left:20.5%;top:93.8%;font-size:17.7px;opacity:0.087;transform:rotate(-12deg)">🐾</i>
+    <i style="left:12.1%;top:78.8%;font-size:22.7px;opacity:0.082;transform:rotate(-13deg)">🐾</i>
+    <i style="left:25.3%;top:20.5%;font-size:15.2px;opacity:0.061;transform:rotate(15deg)">🐾</i>
+    <i style="left:52.2%;top:81.5%;font-size:20.6px;opacity:0.060;transform:rotate(2deg)">🐾</i>
+    <i style="left:14.3%;top:83.2%;font-size:17.0px;opacity:0.083;transform:rotate(-2deg)">🐾</i>
+    <i style="left:23.9%;top:4.1%;font-size:11.3px;opacity:0.115;transform:rotate(21deg)">🐾</i>
+    <i style="left:75.9%;top:56.1%;font-size:21.0px;opacity:0.092;transform:rotate(-8deg)">🐾</i>
+    <i style="left:37.3%;top:27.8%;font-size:15.6px;opacity:0.093;transform:rotate(-7deg)">🐾</i>
+    <i style="left:7.0%;top:52.2%;font-size:13.1px;opacity:0.082;transform:rotate(-9deg)">🐾</i>
+    <i style="left:20.1%;top:9.0%;font-size:23.8px;opacity:0.088;transform:rotate(-21deg)">🐾</i>
+    <i style="left:95.4%;top:43.3%;font-size:20.1px;opacity:0.066;transform:rotate(2deg)">🐾</i>
+    <i style="left:95.6%;top:20.7%;font-size:19.9px;opacity:0.079;transform:rotate(-3deg)">🐾</i>
+    <i style="left:72.2%;top:19.6%;font-size:21.5px;opacity:0.103;transform:rotate(-20deg)">🐾</i>
+    <i style="left:4.8%;top:15.5%;font-size:19.3px;opacity:0.078;transform:rotate(-13deg)">🐾</i>
+    <i style="left:49.6%;top:51.5%;font-size:12.3px;opacity:0.114;transform:rotate(-8deg)">🐾</i>
+  </div>
 
   <!-- ═══ Верхнее меню с логотипом ═══ -->
   <header class="topnav">
