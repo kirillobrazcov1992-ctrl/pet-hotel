@@ -2,7 +2,7 @@
 
 /* Следы лапок по всему сайту */
 .paws{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden}
-.paws i{position:absolute;font-style:normal;line-height:1;user-select:none}
+.paws i{position:absolute;font-style:normal;line-height:1;user-select:none;filter:sepia(.55) saturate(1.4) brightness(.66) contrast(1.05)}
 
 :root{
   --cream:#FFF8F0; --card:#FFFFFF; --ink:#2A211C; --soft:#5D524A;
