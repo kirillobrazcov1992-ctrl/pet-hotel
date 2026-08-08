@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Передержка животных — забота и комфорт для вашего питомца | Кристина</title>
-<meta name="description" content="Передержка животных: уютное проживание, кормление по расписанию, прогулки и игры, фотоотчёты. Обращайтесь: +7 989 287-91-68 (Кристина).">
+<title>Милый Дом — передержка животных, забота и комфорт для питомца | Кристина</title>
+<meta name="description" content="Отель «Милый Дом» — передержка животных: уютное проживание, кормление по расписанию, прогулки и игры, фотоотчёты. Обращайтесь: +7 989 287-91-68 (Кристина).">
 <meta name="theme-color" content="#F97316">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +31,11 @@
   .hero img.bg{display:block;width:100%;height:auto}
   .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.3) 88%);pointer-events:none}
   .hero-icons{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;gap:6px;z-index:3;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.9);border-radius:22px;padding:7px;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+  .brand{position:absolute;top:16px;left:16px;z-index:3;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:10px 16px;box-shadow:0 10px 24px rgba(0,0,0,.25);display:flex;align-items:center;gap:10px}
+  .brand .b-em{font-size:26px}
+  .brand b{font-size:16px;font-weight:900;color:var(--ink);display:block;line-height:1.1}
+  .brand small{font-size:11px;font-weight:800;color:var(--orange);letter-spacing:.4px;text-transform:uppercase}
+  @media(max-width:430px){.brand{top:12px;left:12px;padding:8px 12px;border-radius:14px}.brand .b-em{font-size:22px}.brand b{font-size:14px}.brand small{font-size:9.5px}}
   .h-icon{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:92px;height:80px;border-radius:16px;background:transparent;transition:transform .15s,background .15s}
   .h-icon:hover{background:#FFF1E2;transform:translateY(-2px)}
   .h-ico{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.2)}
@@ -142,6 +147,7 @@
     <img class="bg" src="img/photo-mobile.jpg" alt="Передержка животных"
          srcset="img/photo-mobile.jpg 800w, img/photo-web.jpg 1200w"
          sizes="100vw" fetchpriority="high">
+    <div class="brand"><span class="b-em">🐾</span><div><b>Милый Дом</b><small>Передержка животных</small></div></div>
     <div class="hero-icons">
       <a class="h-icon vk" href="https://vk.ru/kristyusha_breslavec" target="_blank" rel="noopener" title="VK">
         <span class="h-ico">VK</span><span class="h-lbl">VK</span>
