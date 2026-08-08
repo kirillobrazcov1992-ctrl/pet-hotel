@@ -1,15 +1,9 @@
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* Две лапки ходят по сайту */
+/* Две лапки шагают по сайту */
 .paws{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden}
-.pwalk{position:absolute;left:0;top:28%;font-size:24px;line-height:1;animation:walkL 24s linear infinite;filter:sepia(.55) saturate(1.4) brightness(.66) contrast(1.05)}
-.pwalk b{display:block;font-style:normal;animation:step .7s ease-in-out infinite}
-.pwalk.alt{top:68%;animation-name:walkR;animation-duration:30s}
-.pwalk.alt b{animation-delay:.35s}
-@keyframes walkL{0%,100%{transform:translateX(-8vw)}50%{transform:translateX(108vw)}}
-@keyframes walkR{0%,100%{transform:translateX(108vw)}50%{transform:translateX(-8vw)}}
-@keyframes step{0%,100%{transform:translateY(0) rotate(-10deg)}50%{transform:translateY(-9px) rotate(8deg)}}
-@media(max-width:600px){.pwalk{font-size:20px}.pwalk{top:26%}.pwalk.alt{top:70%}}
+.pwalk{position:absolute;left:0;top:36%;font-size:26px;line-height:1;transform-origin:50% 100%;will-change:transform;filter:sepia(.55) saturate(1.4) brightness(.66) contrast(1.05)}
+@media(max-width:600px){.pwalk{font-size:21px;top:34%}}
 
 :root{
   --cream:#FFF8F0; --card:#FFFFFF; --ink:#2A211C; --soft:#5D524A;
