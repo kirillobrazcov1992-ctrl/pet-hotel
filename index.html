@@ -87,6 +87,10 @@
   .intro{text-align:center;padding-top:44px}
   h1{font-size:clamp(26px,5.2vw,44px);font-weight:900;line-height:1.2;text-shadow:0 3px 22px rgba(255,130,20,.25)}
   h1 .grad{background:linear-gradient(90deg,#ff7a18,#ffd12e,#ff7a18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-weight:900}
+  .loc{display:inline-flex;align-items:center;gap:8px;margin:18px auto 0;padding:10px 22px;border-radius:999px;font-weight:800;font-size:clamp(15px,3.4vw,19px);color:#fff;background:linear-gradient(90deg,#ff7a18,#ffb02e);box-shadow:0 8px 26px rgba(255,122,24,.35);animation:locFloat 3.2s ease-in-out infinite}
+  .loc-pin{font-size:1.15em;animation:locBounce 1.4s ease-in-out infinite}
+  @keyframes locFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes locBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
   .lead{color:var(--soft);max-width:680px;margin:18px auto 0;font-size:clamp(15px,3.2vw,18px);font-weight:600}
 
   h2{font-size:clamp(22px,4vw,32px);font-weight:900;text-align:center;line-height:1.15}
@@ -190,6 +194,7 @@
   <section class="intro">
     <div class="wrap rev">
       <h1>🐾 Передержка животных:<br><span class="grad">забота и комфорт для вашего питомца</span> 🐾</h1>
+      <div class="loc"><span class="loc-pin">📍</span> Станица Ленинградская, Краснодарский край</div>
       <p class="lead">Ищете надёжное место, где о вашем любимце позаботятся, пока вы в отъезде?<br>Предлагаю услуги передержки — ваш питомец будет под присмотром и в безопасности! 🔥</p>
     </div>
   </section>
