@@ -30,6 +30,11 @@
   .badge{background:#FFF1E2;border:1px solid var(--line);padding:2px 10px;border-radius:999px;font-size:12px;font-weight:900;color:var(--orange)}
   .muted{color:#A89A8C;font-size:13px}
   .stars{color:var(--amber);letter-spacing:2px}
+  .gal-add{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .gal-list{display:flex;flex-wrap:wrap;gap:12px}
+  .gal-item{position:relative}
+  .gal-item img{width:130px;height:100px;object-fit:cover;border-radius:12px;border:2px solid var(--line);box-shadow:0 4px 10px rgba(42,33,28,.1)}
+  .gal-item .del-btn{position:absolute;top:-10px;right:-10px;padding:6px 9px;font-size:13px;border-radius:9px}
 </style>
 </head>
 <body>
@@ -64,6 +69,15 @@
     <div class="adm-sec">
       <h2>⭐ Отзывы <span class="badge" id="comCnt">0</span></h2>
       <div class="adm-grid" id="coms"><p class="muted" style="text-align:center">Загрузка...</p></div>
+    </div>
+
+    <div class="adm-sec">
+      <h2>🖼 Галерея <span class="badge" id="galCnt">0</span></h2>
+      <div id="galList"><p class="muted" style="text-align:center">Загрузка...</p></div>
+      <div class="gal-add">
+        <input type="file" id="galFile" accept="image/*" style="flex:1;min-width:160px">
+        <button class="del-btn" style="background:linear-gradient(135deg,var(--green),#16A34A);border:none;color:#fff" onclick="uploadPhoto()">📤 Добавить фото</button>
+      </div>
     </div>
   </section>
 
@@ -153,9 +167,40 @@
         .catch(function(){ reqBox.innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
       api('/api/admin/comments').then(function(list){ renderComs(list); })
         .catch(function(){ comBox.innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
+      loadGallery();
     }
     function delReq(id){ if(!confirm('Удалить заявку?')) return; api('/api/admin/requests/'+id,{method:'DELETE'}).then(function(){ loadAll(); }); }
     function delCom(id){ if(!confirm('Удалить отзыв?')) return; api('/api/admin/comments/'+id,{method:'DELETE'}).then(function(){ loadAll(); }); }
+
+    function loadGallery(){
+      api('/api/gallery').then(function(list){
+        var box = document.getElementById('galList');
+        document.getElementById('galCnt').textContent = list.length;
+        if (!list.length){ box.innerHTML = '<p class="muted" style="text-align:center;padding:8px">Фото пока нет — добавьте первое!</p>'; return; }
+        box.innerHTML = '<div class="gal-list">' + list.map(function(p){
+          return '<div class="gal-item"><img src="' + p.url + '" alt=""><button class="del-btn" onclick="delPhoto(\'' + p.file + '\')">🗑</button></div>';
+        }).join('') + '</div>';
+      }).catch(function(){ document.getElementById('galList').innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
+    }
+    function delPhoto(f){
+      if (!confirm('Удалить фото?')) return;
+      api('/api/admin/gallery/' + encodeURIComponent(f), { method:'DELETE' }).then(function(){ loadGallery(); });
+    }
+    function uploadPhoto(){
+      var inp = document.getElementById('galFile');
+      if (!inp.files || !inp.files[0]){ alert('Сначала выберите файл'); return; }
+      var file = inp.files[0];
+      var reader = new FileReader();
+      reader.onload = function(){
+        var data = String(reader.result).split(',')[1] || '';
+        api('/api/admin/gallery', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ data: data, mime: file.type || 'image/jpeg', name: file.name }) })
+          .then(function(res){
+            if (res.ok){ inp.value = ''; loadGallery(); }
+            else alert(res.error || 'Ошибка загрузки');
+          });
+      };
+      reader.readAsDataURL(file);
+    }
 
     // Секретная ссылка: moder.html?p=ПАРОЛЬ — вход в один клик
     var qp = new URLSearchParams(location.search).get('p');

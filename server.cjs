@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const Database = require('better-sqlite3');
 
@@ -108,6 +109,46 @@ app.delete('/api/admin/requests/:id', requireAdmin, (req, res) => {
 });
 app.delete('/api/admin/comments/:id', requireAdmin, (req, res) => {
   DB.prepare('DELETE FROM comments WHERE id = ?').run(Number(req.params.id));
+  res.json({ ok: true });
+});
+
+// ── Галерея: фото хранятся в img/gallery ──
+const GALLERY_DIR = path.join(__dirname, 'img', 'gallery');
+fs.mkdirSync(GALLERY_DIR, { recursive: true });
+const IMG_RE = /\.(jpe?g|png|webp|gif|avif)$/i;
+
+function safeFile(name) {
+  return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '').slice(-60);
+}
+
+app.get('/api/gallery', (req, res) => {
+  let files = [];
+  try { files = fs.readdirSync(GALLERY_DIR).filter(f => IMG_RE.test(f)).sort(); } catch (e) {}
+  res.json(files.map(f => ({ file: f, url: '/img/gallery/' + f })));
+});
+
+app.post('/api/admin/gallery', requireAdmin, (req, res) => {
+  const b = req.body || {};
+  const data = String(b.data || '');
+  const mime = String(b.mime || 'image/jpeg');
+  if (!data) return res.status(400).json({ error: 'Нет данных фото' });
+  const buf = Buffer.from(data, 'base64');
+  if (!buf.length) return res.status(400).json({ error: 'Файл пустой' });
+  if (buf.length > 10 * 1024 * 1024) return res.status(400).json({ error: 'Файл больше 10 МБ' });
+  const ext = mime === 'image/png' ? '.png' : mime === 'image/webp' ? '.webp' : mime === 'image/gif' ? '.gif' : mime === 'image/avif' ? '.avif' : '.jpg';
+  const base = safeFile(b.name).replace(/\.[^.]+$/, '') || 'photo';
+  let fname = base + ext, i = 1;
+  while (fs.existsSync(path.join(GALLERY_DIR, fname))) fname = base + '-' + (i++) + ext;
+  fs.writeFileSync(path.join(GALLERY_DIR, fname), buf);
+  res.json({ ok: true, file: fname });
+});
+
+app.delete('/api/admin/gallery/:file', requireAdmin, (req, res) => {
+  const f = safeFile(req.params.file);
+  const full = path.join(GALLERY_DIR, f);
+  if (f && full.startsWith(GALLERY_DIR) && IMG_RE.test(f) && fs.existsSync(full)) {
+    fs.unlinkSync(full);
+  }
   res.json({ ok: true });
 });
 
