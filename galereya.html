@@ -35,6 +35,9 @@
   .g-play{border:none;background:linear-gradient(135deg,var(--orange),var(--amber));color:#fff;font-weight:900;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;box-shadow:0 6px 16px rgba(249,115,22,.3);transition:transform .15s}
   .g-play:hover{transform:scale(1.05)}
 
+  .g-cap{text-align:center;margin-top:16px;font-weight:800;font-size:clamp(15px,2.5vw,18px);color:var(--ink)}
+  .g-cap::before{content:'🐾 '}
+  .g-cap:empty::before{content:''}
   .g-like{display:flex;justify-content:center;margin-top:16px}
   .like-btn{display:inline-flex;align-items:center;gap:10px;border:none;background:#fff;border:2px solid var(--line);padding:10px 22px;border-radius:999px;cursor:pointer;font-family:inherit;font-weight:900;font-size:17px;color:var(--ink);box-shadow:0 6px 16px rgba(42,33,28,.1);transition:transform .15s,border-color .15s}
   .like-btn:hover{transform:scale(1.06);border-color:var(--amber)}
@@ -84,6 +87,7 @@
         <button class="g-nav prev" onclick="go(-1)" aria-label="Назад">‹</button>
         <button class="g-nav next" onclick="go(1)" aria-label="Вперёд">›</button>
       </div>
+      <div class="g-cap" id="gCap"></div>
       <div class="g-like">
         <button class="like-btn" id="likeBtn" onclick="toggleLike(event)">
           <span class="heart" id="heartIc">🤍</span>
@@ -128,6 +132,8 @@
       likeCount = photos[cur].likes || 0;
       liked = likeStatus(photos[cur].file);
       renderLike();
+      var capEl = document.getElementById('gCap');
+      if (capEl) capEl.textContent = photos[cur].caption || '';
     }
     function likeStatus(f){ try { return localStorage.getItem('phLiked_' + f) === '1'; } catch(e){ return false; } }
     function renderLike(){

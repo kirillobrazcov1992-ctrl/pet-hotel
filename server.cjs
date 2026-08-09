@@ -31,6 +31,10 @@ CREATE TABLE IF NOT EXISTS likes(
   photo TEXT PRIMARY KEY,
   count INTEGER DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS photo_captions(
+  photo TEXT PRIMARY KEY,
+  caption TEXT DEFAULT ''
+);
 `);
 // Небольшой стартовый контент (можно удалить когда появятся настоящие)
 const nReq = DB.prepare('SELECT COUNT(*) c FROM requests').get().c;
@@ -123,6 +127,13 @@ const IMG_RE = /\.(jpe?g|png|webp|gif|avif)$/i;
 
 // Стартовые лайки для первых фото (3–8), дальше считаются по кликам
 const seedLikes = { 'photo-1.jpg': 5, 'photo-2.jpg': 3, 'photo-3.jpg': 6, 'photo-4.jpg': 4 };
+// Стартовые подписи (модератор может изменить в кабинете)
+const seedCaptions = {
+  'photo-1.jpg': 'Мурзик отдыхает на своём лежаке',
+  'photo-2.jpg': 'Прогулка с Барсиком на свежем воздухе',
+  'photo-3.jpg': 'Игровой час — любимые игрушки',
+  'photo-4.jpg': 'Сладкий сон после активного дня'
+};
 
 function safeFile(name) {
   return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '').slice(-60);
@@ -133,10 +144,14 @@ app.get('/api/gallery', (req, res) => {
   try { files = fs.readdirSync(GALLERY_DIR).filter(f => IMG_RE.test(f)).sort(); } catch (e) {}
   const ensure = DB.prepare('INSERT OR IGNORE INTO likes(photo,count) VALUES(?,?)');
   const get = DB.prepare('SELECT count FROM likes WHERE photo = ?');
+  const ensureCap = DB.prepare('INSERT OR IGNORE INTO photo_captions(photo,caption) VALUES(?,?)');
+  const getCap = DB.prepare('SELECT caption FROM photo_captions WHERE photo = ?');
   res.json(files.map(f => {
     ensure.run(f, seedLikes[f] || 0);
+    ensureCap.run(f, seedCaptions[f] || '');
     const row = get.get(f);
-    return { file: f, url: '/img/gallery/' + f, likes: row ? row.count : (seedLikes[f] || 0) };
+    const cap = getCap.get(f);
+    return { file: f, url: '/img/gallery/' + f, likes: row ? row.count : (seedLikes[f] || 0), caption: cap ? cap.caption : '' };
   }));
 });
 
@@ -156,6 +171,15 @@ app.post('/api/gallery/unlike', (req, res) => {
   DB.prepare('UPDATE likes SET count = MAX(0, count - 1) WHERE photo = ?').run(f);
   const row = DB.prepare('SELECT count FROM likes WHERE photo = ?').get(f);
   res.json({ ok: true, likes: row ? row.count : 0 });
+});
+
+app.post('/api/admin/gallery/caption', requireAdmin, (req, res) => {
+  const b = req.body || {};
+  const f = safeFile(b.file || '');
+  const caption = String(b.caption == null ? '' : b.caption).trim().slice(0, 200);
+  if (!f || !fs.existsSync(path.join(GALLERY_DIR, f))) return res.status(400).json({ error: 'Нет такого фото' });
+  DB.prepare('INSERT INTO photo_captions(photo,caption) VALUES(?,?) ON CONFLICT(photo) DO UPDATE SET caption = excluded.caption').run(f, caption);
+  res.json({ ok: true, caption: caption });
 });
 
 app.post('/api/admin/gallery', requireAdmin, (req, res) => {

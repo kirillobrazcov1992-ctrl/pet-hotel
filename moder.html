@@ -36,6 +36,11 @@
   .gal-item img{width:130px;height:100px;object-fit:cover;border-radius:12px;border:2px solid var(--line);box-shadow:0 4px 10px rgba(42,33,28,.1)}
   .gal-item .del-btn{position:absolute;top:-10px;right:-10px;padding:6px 9px;font-size:13px;border-radius:9px}
   .gal-like{position:absolute;left:6px;bottom:6px;background:rgba(255,255,255,.92);border-radius:999px;padding:2px 8px;font-size:12px;font-weight:900;color:#DC2626;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  .gal-item .gal-cap{display:flex;gap:6px;margin-top:6px}
+  .gal-item .gal-cap input{flex:1;min-width:0;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-size:12px;font-family:inherit;outline:none;background:#fff}
+  .gal-item .gal-cap input:focus{border-color:var(--amber)}
+  .gal-item .cap-save{flex-shrink:0;border:none;background:var(--teal);color:#fff;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer}
+  .gal-item .cap-save.saved{background:var(--green)}
 </style>
 </head>
 <body>
@@ -179,13 +184,28 @@
         document.getElementById('galCnt').textContent = list.length;
         if (!list.length){ box.innerHTML = '<p class="muted" style="text-align:center;padding:8px">Фото пока нет — добавьте первое!</p>'; return; }
         box.innerHTML = '<div class="gal-list">' + list.map(function(p){
-          return '<div class="gal-item"><img src="' + p.url + '" alt=""><span class="gal-like">❤️ ' + (p.likes || 0) + '</span><button class="del-btn" onclick="delPhoto(\'' + p.file + '\')">🗑</button></div>';
+          return '<div class="gal-item"><img src="' + p.url + '" alt=""><span class="gal-like">❤️ ' + (p.likes || 0) + '</span><button class="del-btn" onclick="delPhoto(\'' + p.file + '\')">🗑</button>' +
+            '<div class="gal-cap"><input id="cap_' + p.file + '" value="' + esc(p.caption) + '" placeholder="Подпись к фото" maxlength="120" onkeydown="if(event.key===\'Enter\')saveCaption(\'' + p.file + '\')"><button class="cap-save" id="capSave_' + p.file + '" onclick="saveCaption(\'' + p.file + '\')">💾</button></div>' +
+          '</div>';
         }).join('') + '</div>';
       }).catch(function(){ document.getElementById('galList').innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
     }
     function delPhoto(f){
       if (!confirm('Удалить фото?')) return;
       api('/api/admin/gallery/' + encodeURIComponent(f), { method:'DELETE' }).then(function(){ loadGallery(); });
+    }
+    function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function saveCaption(f){
+      var inp = document.getElementById('cap_' + f);
+      var btn = document.getElementById('capSave_' + f);
+      if (!inp) return;
+      var val = inp.value.trim();
+      api('/api/admin/gallery/caption', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ file: f, caption: val }) })
+        .then(function(res){
+          if (res.ok){
+            if (btn){ btn.textContent = '✓'; btn.classList.add('saved'); setTimeout(function(){ btn.textContent = '💾'; btn.classList.remove('saved'); }, 1200); }
+          } else alert(res.error || 'Ошибка сохранения');
+        });
     }
     function uploadPhoto(){
       var inp = document.getElementById('galFile');
