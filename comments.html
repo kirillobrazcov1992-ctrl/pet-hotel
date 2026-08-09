@@ -25,13 +25,14 @@
   .marquee::before,.marquee::after{content:'';position:absolute;top:0;bottom:0;width:50px;z-index:2;pointer-events:none}
   .marquee::before{left:0;background:linear-gradient(90deg,#FFE7CE,transparent)}
   .marquee::after{right:0;background:linear-gradient(270deg,#FFE7CE,transparent)}
-  .marquee-track{display:flex;gap:14px;width:max-content;animation:marq 45s linear infinite}
-  .marquee:hover .marquee-track{animation-play-state:paused}
-  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .marquee-track{display:flex;gap:14px;width:max-content;will-change:transform}
   .marquee-item{flex:0 0 auto;width:min(290px,74vw);background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 6px 16px rgba(42,33,28,.08)}
   .marquee-item .stars{color:var(--amber);letter-spacing:2px;font-size:13px}
   .marquee-item .m-name{font-weight:900;font-size:14px;margin-top:5px}
   .marquee-item .m-text{font-size:13px;color:var(--soft);margin-top:6px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .reviews-photo{max-width:1100px;margin:20px auto 0;padding:0 16px}
+  .reviews-photo img{width:100%;height:220px;object-fit:cover;border-radius:20px;border:3px solid #fff;box-shadow:0 12px 28px rgba(42,33,28,.18)}
+  @media(max-width:600px){.reviews-photo img{height:150px}}
 </style>
 </head>
 <body>
@@ -96,6 +97,11 @@
     </div>
   </header>
 
+  <!-- ═══ Фото сверху ленты ═══ -->
+  <div class="reviews-photo">
+    <img src="img/reviews-top.jpg" alt="Передержка животных — фото питомцев" loading="lazy">
+  </div>
+
   <!-- ═══ Летящая лента отзывов ═══ -->
   <div class="marquee">
     <div class="marquee-track" id="marqueeTrack"></div>
@@ -157,9 +163,30 @@
         '<div class="m-name">🐾 ' + c.name + '</div>' +
         '<div class="m-text">' + c.text + '</div></div>';
     }
+    var tapeAnim = null, tapeTimer = null;
     function buildMarquee(list){
-      // двойной набор — бесшовный пролёт
-      mtrack.innerHTML = list.concat(list).map(marqueeHtml).join('');
+      // каждый отзыв один раз — лента крутится по кругу без дублей
+      mtrack.innerHTML = list.map(marqueeHtml).join('');
+      runTape();
+    }
+    function runTape(){
+      clearTimeout(tapeTimer);
+      if (!mtrack.children.length) return;
+      var dist = mtrack.scrollWidth - mtrack.parentElement.clientWidth;
+      if (dist <= 0) return;
+      var speed = 45; // px в секунду
+      var dur = Math.max(15, dist / speed);
+      mtrack.style.transform = 'translateX(0)';
+      tapeAnim = mtrack.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(' + (-dist) + 'px)' }
+      ], { duration: dur * 1000, easing: 'linear' });
+      tapeAnim.onfinish = function(){ runTape(); };
+    }
+    var marquee = document.querySelector('.marquee');
+    if (marquee){
+      marquee.addEventListener('mouseenter', function(){ if (tapeAnim) tapeAnim.pause(); });
+      marquee.addEventListener('mouseleave', function(){ if (tapeAnim) tapeAnim.play(); });
     }
     function idSet(list){ return list.map(function(c){ return c.id; }).join(','); }
     function load(){
