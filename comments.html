@@ -18,6 +18,7 @@
   .star-row label{color:#E5D3BE}
   .star-row label.on{color:var(--amber)}
   .rating-hint{text-align:center;font-size:12px;color:var(--soft);font-weight:800;margin-top:2px}
+  .com-count{display:inline-block;margin-top:12px;padding:6px 16px;border-radius:999px;background:#FFF1E2;border:1px solid var(--line);font-weight:900;font-size:14px;color:var(--orange)}
 
   /* ═══ Летящая лента отзывов ═══ */
   .marquee{overflow:hidden;background:linear-gradient(90deg,#FFF1E2,#FFE7CE);border-top:3px solid #fff;border-bottom:3px solid #fff;padding:16px 0;position:relative}
@@ -103,6 +104,7 @@
   <section class="intro">
     <h1>Живые <span>отзывы</span></h1>
     <p>Реальные комментарии от хозяев. Напишите свой — он сразу появится в ленте!</p>
+    <div class="com-count">⭐ Всего отзывов: <span id="comCount">0</span></div>
   </section>
 
   <section class="form-sec">
@@ -144,9 +146,9 @@
     radios.forEach(function(r){ r.addEventListener('change', function(){ paint(parseInt(this.value)); }); });
     paint(5);
 
-    var seen = {};
     var mtrack = document.getElementById('marqueeTrack');
     var built = false;
+    var seenIds = '';
 
     function starsHtml(n){ return '★'.repeat(n) + '☆'.repeat(5 - n); }
     function marqueeHtml(c){
@@ -159,13 +161,23 @@
       // двойной набор — бесшовный пролёт
       mtrack.innerHTML = list.concat(list).map(marqueeHtml).join('');
     }
+    function idSet(list){ return list.map(function(c){ return c.id; }).join(','); }
     function load(){
       fetch('/api/comments').then(function(r){ return r.json(); })
         .then(function(list){
-          if (!list.length){ buildMarquee([{id:0,name:'Пока нет отзывов',text:'Напишите первый — он появится здесь!',rating:5}]); return; }
-          if (!built){ buildMarquee(list); list.forEach(function(c){ seen[c.id]=true; }); built = true; return; }
-          var fresh = list.filter(function(c){ return !seen[c.id]; });
-          if (fresh.length){ buildMarquee(list); fresh.forEach(function(c){ seen[c.id]=true; }); }
+          var cnt = document.getElementById('comCount');
+          if (cnt) cnt.textContent = list.length;
+          if (!list.length){
+            buildMarquee([{id:0,name:'Пока нет отзывов',text:'Напишите первый — он появится здесь!',rating:5}]);
+            seenIds = 'empty';
+            return;
+          }
+          var cur = idSet(list);
+          if (!built || cur !== seenIds){
+            buildMarquee(list);
+            seenIds = cur;
+            built = true;
+          }
         })
         .catch(function(){ if(!built) mtrack.innerHTML = '<div class="marquee-item"><div class="m-text">Не удалось загрузить отзывы.</div></div>'; });
     }
