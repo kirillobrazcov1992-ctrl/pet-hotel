@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /moder.html
+Disallow: /api/
+
+Sitemap: https://pet-hotel-vwab.onrender.com/sitemap.xml
