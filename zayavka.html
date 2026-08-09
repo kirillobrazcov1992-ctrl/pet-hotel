@@ -75,14 +75,14 @@
 
   <section class="intro">
     <h1>Оставьте заявку <span>на размещение питомца</span></h1>
-    <p>Заполните форму — Кристина свяжется с вами. Все заявки висят на этой странице и видны каждому.</p>
+    <p>Заполните форму — Кристина свяжется с вами. Заявки видны всем, но ваш номер телефона останется скрытым 🔒</p>
   </section>
 
   <section class="form-sec">
     <div class="form-card">
       <form id="reqForm">
         <input name="name" type="text" placeholder="Ваше имя" required>
-        <input name="phone" type="tel" placeholder="Телефон" required>
+        <input name="phone" type="tel" placeholder="Телефон (номер будет скрыт)" required>
         <select name="pet" required>
           <option value="" disabled selected>Кого привезёте?</option>
           <option>🐕 Собака</option>
@@ -127,11 +127,10 @@
       if (!list.length){ box.innerHTML = '<p style="text-align:center;color:var(--soft)">Пока заявок нет — станьте первым! 🐾</p>'; return; }
       box.innerHTML = list.map(function(r){
         var em = petEmoji[petName(r.pet)] || '🐾';
-        var phone = r.phone.replace(/[^+\d]/g,'');
         return '<div class="req-card">' +
           '<div class="req-top"><b>' + em + ' ' + r.pet + '</b>' +
           '<span class="pet-badge">' + r.created + '</span></div>' +
-          '<div class="req-line"><b>' + r.name + '</b> · 📞 <a href="tel:' + phone + '">' + r.phone + '</a></div>' +
+          '<div class="req-line"><b>' + r.name + '</b> · <span style="color:#A89A8C">📞 номер скрыт 🔒</span></div>' +
           (r.dates ? '<div class="req-line">📅 ' + r.dates + '</div>' : '') +
           (r.msg ? '<div class="req-msg">' + r.msg + '</div>' : '') +
         '</div>';

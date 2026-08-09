@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кабинет модератора — Милый Дом</title>
+<meta name="description" content="Служебный кабинет модератора сайта передержки животных">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .login-card{max-width:380px;margin:40px auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 10px 30px rgba(42,33,28,.08);text-align:center}
+  .login-card h1{font-size:21px;font-weight:900;margin-bottom:4px}
+  .login-card p{color:var(--soft);font-size:14px;margin-bottom:14px}
+  .login-card input{width:100%;text-align:center;letter-spacing:2px}
+  .login-card .btn{width:100%;margin-top:12px}
+  .adm-sec{max-width:860px;margin:0 auto;padding:18px 0}
+  .adm-sec h2{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:22px;font-weight:900;margin-bottom:16px}
+  .adm-grid{display:grid;gap:12px}
+  .adm-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:0 5px 14px rgba(42,33,28,.05);display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+  .adm-card .info{flex:1;min-width:0}
+  .del-btn{flex-shrink:0;background:#FEE2E2;border:1px solid #FECACA;color:#DC2626;font-weight:900;font-size:13px;padding:9px 13px;border-radius:10px;cursor:pointer;transition:transform .15s}
+  .del-btn:hover{transform:scale(1.06);background:#FECACA}
+  .phone-full{color:var(--teal);font-weight:800}
+  .logout{background:#fff;border:2px solid var(--line);color:var(--ink);font-weight:800;font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer}
+  .logout:hover{border-color:var(--amber);color:var(--orange)}
+  .badge{background:#FFF1E2;border:1px solid var(--line);padding:2px 10px;border-radius:999px;font-size:12px;font-weight:900;color:var(--orange)}
+  .muted{color:#A89A8C;font-size:13px}
+  .stars{color:var(--amber);letter-spacing:2px}
+</style>
+</head>
+<body>
+
+  <header class="ph">
+    <div class="pw">
+      <a class="back" href="index.html">← На главную</a>
+      <div class="logo">🔐 Кабинет модератора<small>Милый Дом</small></div>
+    </div>
+  </header>
+
+  <!-- ═══ Вход ═══ -->
+  <section id="login" class="login-card">
+    <h1>🔐 Вход в кабинет</h1>
+    <p>Введите пароль модератора</p>
+    <input id="pass" type="password" placeholder="Пароль" autocomplete="current-password">
+    <button class="btn" onclick="login()">Войти</button>
+    <div class="err" id="loginErr"></div>
+  </section>
+
+  <!-- ═══ Панель ═══ -->
+  <section id="panel" style="display:none">
+    <div style="max-width:860px;margin:0 auto;padding:14px 16px 0;display:flex;justify-content:flex-end">
+      <button class="logout" onclick="logout()">Выйти</button>
+    </div>
+
+    <div class="adm-sec">
+      <h2>📋 Заявки <span class="badge" id="reqCnt">0</span></h2>
+      <div class="adm-grid" id="reqs"><p class="muted" style="text-align:center">Загрузка...</p></div>
+    </div>
+
+    <div class="adm-sec">
+      <h2>⭐ Отзывы <span class="badge" id="comCnt">0</span></h2>
+      <div class="adm-grid" id="coms"><p class="muted" style="text-align:center">Загрузка...</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="paw">🐾</div>
+    <p>Передержка животных — забота и комфорт для вашего питомца</p>
+    <p><a href="tel:+79892879168">+7 989 287-91-68</a> · Кристина</p>
+    <p>📍 Станица Ленинградская, Краснодарский край</p>
+    <p style="font-size:12px;opacity:.6">© 2026</p>
+  </footer>
+
+  <script>
+    var token = sessionStorage.getItem('modToken') || '';
+    var reqBox = document.getElementById('reqs');
+    var comBox = document.getElementById('coms');
+
+    function api(url, opts){
+      opts = opts || {};
+      opts.headers = opts.headers || {};
+      opts.headers['x-admin-token'] = token;
+      return fetch(url, opts).then(function(r){
+        if (r.status === 401){
+          sessionStorage.removeItem('modToken');
+          location.reload();
+          throw new Error('auth');
+        }
+        return r.json();
+      });
+    }
+    function showPanel(){
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('panel').style.display = 'block';
+    }
+    function login(){
+      var pass = document.getElementById('pass').value;
+      fetch('/api/admin/login', {
+        method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password: pass})
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if (res.ok){
+          token = res.token;
+          sessionStorage.setItem('modToken', token);
+          document.getElementById('loginErr').style.display = 'none';
+          showPanel();
+          loadAll();
+        } else {
+          document.getElementById('loginErr').textContent = res.error || 'Ошибка';
+          document.getElementById('loginErr').style.display = 'block';
+        }
+      }).catch(function(){
+        document.getElementById('loginErr').textContent = 'Сеть недоступна, попробуйте ещё раз.';
+        document.getElementById('loginErr').style.display = 'block';
+      });
+    }
+    function logout(){
+      token = '';
+      sessionStorage.removeItem('modToken');
+      location.reload();
+    }
+    function petName(p){ return (p||'').replace(/🐕 |🐈 |🐹 |🦜 |🐢 /g,''); }
+    function starsHtml(n){ return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+    function renderReqs(list){
+      document.getElementById('reqCnt').textContent = list.length;
+      if (!list.length){ reqBox.innerHTML = '<p class="muted" style="text-align:center;padding:10px">Заявок пока нет 🐾</p>'; return; }
+      reqBox.innerHTML = list.map(function(r){
+        var phone = r.phone.replace(/[^+\d]/g,'');
+        return '<div class="adm-card"><div class="info">' +
+          '<div><b>' + r.pet + '</b> <span class="badge">' + r.created + '</span></div>' +
+          '<div class="req-line"><b>' + r.name + '</b> · 📞 <a class="phone-full" href="tel:' + phone + '">' + r.phone + '</a></div>' +
+          (r.dates ? '<div class="muted">📅 ' + r.dates + '</div>' : '') +
+          (r.msg ? '<div class="req-msg">' + r.msg + '</div>' : '') +
+        '</div><button class="del-btn" onclick="delReq(' + r.id + ')">🗑 Удалить</button></div>';
+      }).join('');
+    }
+    function renderComs(list){
+      document.getElementById('comCnt').textContent = list.length;
+      if (!list.length){ comBox.innerHTML = '<p class="muted" style="text-align:center;padding:10px">Отзывов пока нет 🐾</p>'; return; }
+      comBox.innerHTML = list.map(function(c){
+        return '<div class="adm-card"><div class="info">' +
+          '<div><b>🐾 ' + c.name + '</b> <span class="stars">' + starsHtml(c.rating) + '</span> <span class="badge">' + c.created + '</span></div>' +
+          '<div class="muted" style="margin-top:6px">' + c.text + '</div>' +
+        '</div><button class="del-btn" onclick="delCom(' + c.id + ')">🗑 Удалить</button></div>';
+      }).join('');
+    }
+    function loadAll(){
+      api('/api/admin/requests').then(function(list){ renderReqs(list); })
+        .catch(function(){ reqBox.innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
+      api('/api/admin/comments').then(function(list){ renderComs(list); })
+        .catch(function(){ comBox.innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
+    }
+    function delReq(id){ if(!confirm('Удалить заявку?')) return; api('/api/admin/requests/'+id,{method:'DELETE'}).then(function(){ loadAll(); }); }
+    function delCom(id){ if(!confirm('Удалить отзыв?')) return; api('/api/admin/comments/'+id,{method:'DELETE'}).then(function(){ loadAll(); }); }
+
+    // Секретная ссылка: moder.html?p=ПАРОЛЬ — вход в один клик
+    var qp = new URLSearchParams(location.search).get('p');
+    if (qp){ document.getElementById('pass').value = qp; login(); }
+    else if (token){ showPanel(); loadAll(); }
+  </script>
+</body>
+</html>

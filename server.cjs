@@ -40,8 +40,58 @@ if (nCom === 0) {
 app.use(express.static(__dirname));
 app.use(express.json());
 
-app.get('/api/requests', (req, res) => {
+// ── Кабинет модератора: секретный пароль ──
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MilyDom2026!';
+const SESSIONS = new Set();
+
+// Телефон в публичных заявках скрыт: остаются первые 3 и последние 2 цифры
+function maskPhone(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (!s) return '';
+  const digits = s.replace(/\D/g, '');
+  if (digits.length < 6) return s;
+  let out = '', di = 0;
+  for (const ch of s) {
+    if (/\d/.test(ch)) {
+      di++;
+      out += (di <= 3 || di > digits.length - 2) ? ch : '*';
+    } else out += ch;
+  }
+  return out;
+}
+function isAdmin(req) {
+  const t = req.get('x-admin-token');
+  return !!(t && SESSIONS.has(t));
+}
+function requireAdmin(req, res, next) {
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Требуется вход в кабинет модератора' });
+  next();
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const p = String((req.body || {}).password || '');
+  if (p !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Неверный пароль' });
+  const token = Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2);
+  SESSIONS.add(token);
+  res.json({ ok: true, token });
+});
+app.get('/api/admin/requests', requireAdmin, (req, res) => {
   res.json(DB.prepare('SELECT * FROM requests ORDER BY id DESC').all());
+});
+app.get('/api/admin/comments', requireAdmin, (req, res) => {
+  res.json(DB.prepare('SELECT * FROM comments ORDER BY id DESC').all());
+});
+app.delete('/api/admin/requests/:id', requireAdmin, (req, res) => {
+  DB.prepare('DELETE FROM requests WHERE id = ?').run(Number(req.params.id));
+  res.json({ ok: true });
+});
+app.delete('/api/admin/comments/:id', requireAdmin, (req, res) => {
+  DB.prepare('DELETE FROM comments WHERE id = ?').run(Number(req.params.id));
+  res.json({ ok: true });
+});
+
+app.get('/api/requests', (req, res) => {
+  res.json(DB.prepare('SELECT * FROM requests ORDER BY id DESC').all().map(r => ({ ...r, phone: maskPhone(r.phone) })));
 });
 app.post('/api/requests', (req, res) => {
   const b = req.body || {};
