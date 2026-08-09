@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS meta(
   key TEXT PRIMARY KEY,
   value TEXT
 );
+CREATE TABLE IF NOT EXISTS likes(
+  photo TEXT PRIMARY KEY,
+  count INTEGER DEFAULT 0
+);
 `);
 // Небольшой стартовый контент (можно удалить когда появятся настоящие)
 const nReq = DB.prepare('SELECT COUNT(*) c FROM requests').get().c;
@@ -117,6 +121,9 @@ const GALLERY_DIR = path.join(__dirname, 'img', 'gallery');
 fs.mkdirSync(GALLERY_DIR, { recursive: true });
 const IMG_RE = /\.(jpe?g|png|webp|gif|avif)$/i;
 
+// Стартовые лайки для первых фото (3–8), дальше считаются по кликам
+const seedLikes = { 'photo-1.jpg': 5, 'photo-2.jpg': 3, 'photo-3.jpg': 6, 'photo-4.jpg': 4 };
+
 function safeFile(name) {
   return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '').slice(-60);
 }
@@ -124,7 +131,31 @@ function safeFile(name) {
 app.get('/api/gallery', (req, res) => {
   let files = [];
   try { files = fs.readdirSync(GALLERY_DIR).filter(f => IMG_RE.test(f)).sort(); } catch (e) {}
-  res.json(files.map(f => ({ file: f, url: '/img/gallery/' + f })));
+  const ensure = DB.prepare('INSERT OR IGNORE INTO likes(photo,count) VALUES(?,?)');
+  const get = DB.prepare('SELECT count FROM likes WHERE photo = ?');
+  res.json(files.map(f => {
+    ensure.run(f, seedLikes[f] || 0);
+    const row = get.get(f);
+    return { file: f, url: '/img/gallery/' + f, likes: row ? row.count : (seedLikes[f] || 0) };
+  }));
+});
+
+app.post('/api/gallery/like', (req, res) => {
+  const f = safeFile((req.body || {}).file || '');
+  if (!f || !fs.existsSync(path.join(GALLERY_DIR, f))) return res.status(400).json({ error: 'Нет такого фото' });
+  DB.prepare('INSERT OR IGNORE INTO likes(photo,count) VALUES(?,0)').run(f);
+  DB.prepare('UPDATE likes SET count = count + 1 WHERE photo = ?').run(f);
+  const row = DB.prepare('SELECT count FROM likes WHERE photo = ?').get(f);
+  res.json({ ok: true, likes: row ? row.count : 1 });
+});
+
+app.post('/api/gallery/unlike', (req, res) => {
+  const f = safeFile((req.body || {}).file || '');
+  if (!f || !fs.existsSync(path.join(GALLERY_DIR, f))) return res.status(400).json({ error: 'Нет такого фото' });
+  DB.prepare('INSERT OR IGNORE INTO likes(photo,count) VALUES(?,0)').run(f);
+  DB.prepare('UPDATE likes SET count = MAX(0, count - 1) WHERE photo = ?').run(f);
+  const row = DB.prepare('SELECT count FROM likes WHERE photo = ?').get(f);
+  res.json({ ok: true, likes: row ? row.count : 0 });
 });
 
 app.post('/api/admin/gallery', requireAdmin, (req, res) => {
