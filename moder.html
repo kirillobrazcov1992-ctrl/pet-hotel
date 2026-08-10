@@ -46,6 +46,17 @@
   .gal-msg{flex:1 1 100%;margin-top:6px;font-size:14px;font-weight:800;display:none}
   .gal-msg.ok{color:var(--green);display:block}
   .gal-msg.err{color:#DC2626;display:block}
+  .gal-settings{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+  .gal-settings .gs-lbl{font-weight:800;font-size:13.5px;color:var(--ink)}
+  .gal-settings input[type=number]{width:88px;padding:7px 9px;border:2px solid var(--line);border-radius:9px;font-family:inherit;font-weight:800;font-size:14px;text-align:center;outline:none}
+  .gal-settings input[type=number]:focus{border-color:var(--amber)}
+  .gs-btn{border:none;border-radius:10px;padding:9px 14px;font-weight:900;font-size:13px;cursor:pointer;transition:transform .15s;font-family:inherit}
+  .gs-btn:hover{transform:scale(1.05)}
+  .gs-save{background:linear-gradient(135deg,var(--green),#16A34A);color:#fff}
+  .gs-reset{background:#fff;border:2px solid var(--line);color:var(--ink)}
+  .mv-box{display:flex;gap:4px;margin-top:6px}
+  .mv-btn{border:none;background:#FFF1E2;color:var(--orange);font-size:12px;width:27px;height:24px;border-radius:7px;cursor:pointer;font-weight:900;line-height:1;transition:background .15s,color .15s}
+  .mv-btn:hover{background:var(--orange);color:#fff}
 </style>
 </head>
 <body>
@@ -84,6 +95,13 @@
 
     <div class="adm-sec">
       <h2>🖼 Галерея <span class="badge" id="galCnt">0</span></h2>
+      <div class="gal-settings">
+        <span class="gs-lbl">⏱ Показ одного фото, сек:</span>
+        <input type="number" id="galInterval" min="1" max="60" step="0.5" value="4.5">
+        <button class="gs-btn gs-save" type="button" onclick="saveGalSettings()">💾 Сохранить</button>
+        <button class="gs-btn gs-reset" type="button" onclick="resetGalOrder()">↺ Порядок по умолчанию</button>
+        <div class="gal-msg" id="galSetMsg"></div>
+      </div>
       <div id="galList"><p class="muted" style="text-align:center">Загрузка...</p></div>
       <div class="gal-add">
         <input type="file" id="galFile" accept="image/*" style="flex:1;min-width:160px">
@@ -186,16 +204,60 @@
     function delCom(id){ if(!confirm('Удалить отзыв?')) return; api('/api/admin/comments/'+id,{method:'DELETE'}).then(function(){ loadAll(); }); }
 
     function loadGallery(){
-      api('/api/gallery').then(function(list){
+      api('/api/gallery').then(function(data){
+        var list = data.photos || [];
         var box = document.getElementById('galList');
         document.getElementById('galCnt').textContent = list.length;
+        document.getElementById('galInterval').value = data.interval || 4.5;
         if (!list.length){ box.innerHTML = '<p class="muted" style="text-align:center;padding:8px">Фото пока нет — добавьте первое!</p>'; return; }
         box.innerHTML = '<div class="gal-list">' + list.map(function(p){
-          return '<div class="gal-item"><img src="' + p.url + '" alt=""><span class="gal-like">❤️ ' + (p.likes || 0) + '</span><button class="del-btn" onclick="delPhoto(\'' + p.file + '\')">🗑</button>' +
+          return '<div class="gal-item" data-file="' + p.file + '"><img src="' + p.url + '" alt=""><span class="gal-like">❤️ ' + (p.likes || 0) + '</span>' +
+            '<div class="mv-box"><button class="mv-btn" type="button" onclick="movePhoto(this,-1)" title="Выше">▲</button><button class="mv-btn" type="button" onclick="movePhoto(this,1)" title="Ниже">▼</button></div>' +
+            '<button class="del-btn" onclick="delPhoto(\'' + p.file + '\')">🗑</button>' +
             '<div class="gal-cap"><input id="cap_' + p.file + '" value="' + esc(p.caption) + '" placeholder="Подпись к фото" maxlength="120" onkeydown="if(event.key===\'Enter\')saveCaption(\'' + p.file + '\')"><button class="cap-save" id="capSave_' + p.file + '" onclick="saveCaption(\'' + p.file + '\')">💾</button></div>' +
           '</div>';
         }).join('') + '</div>';
       }).catch(function(){ document.getElementById('galList').innerHTML = '<p class="muted" style="text-align:center">Ошибка загрузки</p>'; });
+    }
+    // Перемещение фото в списке (очередность показа)
+    function movePhoto(btn, dir){
+      var item = btn.closest('.gal-item');
+      var list = item && item.parentNode;
+      if (!item || !list) return;
+      var items = Array.prototype.slice.call(list.children);
+      var idx = items.indexOf(item), ni = idx + dir;
+      if (ni < 0 || ni >= items.length) return;
+      if (dir < 0) list.insertBefore(item, items[ni]);
+      else list.insertBefore(items[ni], item);
+    }
+    // Сохранить порядок и секунды на фото
+    function saveGalSettings(){
+      var items = document.querySelectorAll('#galList .gal-item');
+      var order = Array.prototype.map.call(items, function(el){ return el.getAttribute('data-file'); }).filter(Boolean);
+      var interval = parseFloat(document.getElementById('galInterval').value) || 4.5;
+      var msg = document.getElementById('galSetMsg');
+      msg.className = 'gal-msg'; msg.textContent = '';
+      api('/api/admin/gallery/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ order: order, interval: interval }) })
+        .then(function(res){
+          if (res.ok){
+            msg.className = 'gal-msg ok';
+            msg.textContent = '✅ Порядок и время показа сохранены!';
+            setTimeout(function(){ msg.className = 'gal-msg'; }, 3000);
+          } else {
+            msg.className = 'gal-msg err';
+            msg.textContent = '⚠️ ' + (res.error || 'Ошибка сохранения');
+          }
+        })
+        .catch(function(){
+          msg.className = 'gal-msg err';
+          msg.textContent = '⚠️ Не сохранилось. Попробуйте ещё раз.';
+        });
+    }
+    // Сбросить порядок на «по алфавиту», время — как в поле
+    function resetGalOrder(){
+      var interval = parseFloat(document.getElementById('galInterval').value) || 4.5;
+      api('/api/admin/gallery/settings', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ order: [], interval: interval }) })
+        .then(function(res){ if (res.ok) loadGallery(); });
     }
     function delPhoto(f){
       if (!confirm('Удалить фото?')) return;

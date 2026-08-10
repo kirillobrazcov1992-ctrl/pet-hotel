@@ -141,20 +141,38 @@ function safeFile(name) {
   return String(name || '').replace(/[^a-zA-Z0-9._-]/g, '').slice(-60);
 }
 
+// Настройки галереи: порядок показа и секунды на фото (хранятся в meta)
+function getGalSettings(){
+  let order = [];
+  try { order = JSON.parse((DB.prepare("SELECT value FROM meta WHERE key='gal_order'").get() || {}).value || '[]'); } catch (e) { order = []; }
+  if (!Array.isArray(order)) order = [];
+  const ivRow = DB.prepare("SELECT value FROM meta WHERE key='gal_interval'").get();
+  let interval = parseFloat(ivRow ? ivRow.value : 4.5) || 4.5;
+  interval = Math.max(1, Math.min(60, interval));
+  return { order, interval };
+}
+
 app.get('/api/gallery', (req, res) => {
   let files = [];
   try { files = fs.readdirSync(GALLERY_DIR).filter(f => IMG_RE.test(f)).sort(); } catch (e) {}
+  const settings = getGalSettings();
+  // Ручной порядок модератора: выбранные фото идут в заданном порядке, остальные — дальше по алфавиту
+  const chosen = settings.order.filter(f => files.indexOf(f) !== -1);
+  const ordered = chosen.concat(files.filter(f => chosen.indexOf(f) === -1));
   const ensure = DB.prepare('INSERT OR IGNORE INTO likes(photo,count) VALUES(?,?)');
   const get = DB.prepare('SELECT count FROM likes WHERE photo = ?');
   const ensureCap = DB.prepare('INSERT OR IGNORE INTO photo_captions(photo,caption) VALUES(?,?)');
   const getCap = DB.prepare('SELECT caption FROM photo_captions WHERE photo = ?');
-  res.json(files.map(f => {
-    ensure.run(f, seedLikes[f] || 0);
-    ensureCap.run(f, seedCaptions[f] || '');
-    const row = get.get(f);
-    const cap = getCap.get(f);
-    return { file: f, url: '/img/gallery/' + f, likes: row ? row.count : (seedLikes[f] || 0), caption: cap ? cap.caption : '' };
-  }));
+  res.json({
+    photos: ordered.map(f => {
+      ensure.run(f, seedLikes[f] || 0);
+      ensureCap.run(f, seedCaptions[f] || '');
+      const row = get.get(f);
+      const cap = getCap.get(f);
+      return { file: f, url: '/img/gallery/' + f, likes: row ? row.count : (seedLikes[f] || 0), caption: cap ? cap.caption : '' };
+    }),
+    interval: settings.interval
+  });
 });
 
 app.post('/api/gallery/like', (req, res) => {
@@ -207,6 +225,27 @@ app.delete('/api/admin/gallery/:file', requireAdmin, (req, res) => {
     fs.unlinkSync(full);
   }
   res.json({ ok: true });
+});
+
+// ── Настройки показа галереи: порядок и секунды на фото ──
+app.get('/api/admin/gallery/settings', requireAdmin, (req, res) => {
+  res.json(getGalSettings());
+});
+app.post('/api/admin/gallery/settings', requireAdmin, (req, res) => {
+  const b = req.body || {};
+  // Если порядок не передан — сохраняем текущий (чтобы смена только интервала не сбрасывала порядок)
+  let order = getGalSettings().order;
+  if (Array.isArray(b.order)) {
+    order = b.order.map(f => safeFile(f)).filter(f => !!f).filter((f, i, a) => a.indexOf(f) === i);
+  }
+  let interval = getGalSettings().interval;
+  if (b.interval != null && String(b.interval).trim() !== '') {
+    const v = parseFloat(b.interval);
+    if (!isNaN(v)) interval = Math.max(1, Math.min(60, v));
+  }
+  DB.prepare("INSERT INTO meta(key,value) VALUES('gal_order',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(JSON.stringify(order));
+  DB.prepare("INSERT INTO meta(key,value) VALUES('gal_interval',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").run(String(interval));
+  res.json({ ok: true, order, interval });
 });
 
 app.get('/api/requests', (req, res) => {

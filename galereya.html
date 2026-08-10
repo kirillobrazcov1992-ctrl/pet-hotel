@@ -108,7 +108,7 @@
   </footer>
 
   <script>
-    var photos = [], cur = 0, playing = true, timer = null;
+    var photos = [], cur = 0, playing = true, timer = null, interval = 4.5;
     var liked = false, likeCount = 0;
     var imgA = document.getElementById('gA'), imgB = document.getElementById('gB'), active = imgA;
 
@@ -191,11 +191,12 @@
     }
     function schedule(){
       clearInterval(timer);
-      if (playing && photos.length > 1) timer = setInterval(function(){ show(cur + 1); }, 4500);
+      if (playing && photos.length > 1) timer = setInterval(function(){ show(cur + 1); }, (interval || 4.5) * 1000);
     }
     function load(){
-      fetch('/api/gallery').then(function(r){ return r.json(); }).then(function(list){
-        photos = list;
+      fetch('/api/gallery').then(function(r){ return r.json(); }).then(function(data){
+        photos = data.photos || [];
+        interval = data.interval || 4.5;
         var empty = document.getElementById('gEmpty'), box = document.getElementById('gBox');
         if (!photos.length){
           empty.style.display = 'block';
