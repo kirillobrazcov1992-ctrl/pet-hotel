@@ -41,6 +41,11 @@
   .gal-item .gal-cap input:focus{border-color:var(--amber)}
   .gal-item .cap-save{flex-shrink:0;border:none;background:var(--teal);color:#fff;font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer}
   .gal-item .cap-save.saved{background:var(--green)}
+  .gal-progress{flex:1 1 100%;height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:10px;display:none}
+  .gal-progress i{display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--orange),var(--amber));transition:width .2s}
+  .gal-msg{flex:1 1 100%;margin-top:6px;font-size:14px;font-weight:800;display:none}
+  .gal-msg.ok{color:var(--green);display:block}
+  .gal-msg.err{color:#DC2626;display:block}
 </style>
 </head>
 <body>
@@ -82,7 +87,9 @@
       <div id="galList"><p class="muted" style="text-align:center">Загрузка...</p></div>
       <div class="gal-add">
         <input type="file" id="galFile" accept="image/*" style="flex:1;min-width:160px">
-        <button class="del-btn" style="background:linear-gradient(135deg,var(--green),#16A34A);border:none;color:#fff" onclick="uploadPhoto()">📤 Добавить фото</button>
+        <button class="del-btn" id="galUpBtn" type="button" style="background:linear-gradient(135deg,var(--green),#16A34A);border:none;color:#fff" onclick="uploadPhoto()">📤 Добавить фото</button>
+        <div class="gal-progress" id="galProg"><i></i></div>
+        <div class="gal-msg" id="galMsg"></div>
       </div>
     </div>
   </section>
@@ -211,13 +218,43 @@
       var inp = document.getElementById('galFile');
       if (!inp.files || !inp.files[0]){ alert('Сначала выберите файл'); return; }
       var file = inp.files[0];
+      if (file.size > 10 * 1024 * 1024){ alert('Файл больше 10 МБ — выберите фото поменьше'); return; }
+      var btn = document.getElementById('galUpBtn');
+      var prog = document.getElementById('galProg');
+      var bar = prog.querySelector('i');
+      var msg = document.getElementById('galMsg');
+      msg.className = 'gal-msg';
+      msg.textContent = '';
+      btn.disabled = true;
+      btn.style.opacity = '.6';
+      prog.style.display = 'block';
+      // Полоска прогресса (файл читается локально — прогресс декоративный, до 90%)
+      var fake = 0;
+      var timer = setInterval(function(){ fake = Math.min(fake + 12 + Math.random() * 18, 90); bar.style.width = fake + '%'; }, 140);
       var reader = new FileReader();
       reader.onload = function(){
         var data = String(reader.result).split(',')[1] || '';
         api('/api/admin/gallery', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ data: data, mime: file.type || 'image/jpeg', name: file.name }) })
           .then(function(res){
-            if (res.ok){ inp.value = ''; loadGallery(); }
-            else alert(res.error || 'Ошибка загрузки');
+            clearInterval(timer); bar.style.width = '100%';
+            setTimeout(function(){ prog.style.display = 'none'; bar.style.width = '0%'; }, 500);
+            btn.disabled = false; btn.style.opacity = '';
+            if (res.ok){
+              inp.value = '';
+              msg.className = 'gal-msg ok';
+              msg.textContent = '✅ Фото добавлено в галерею!';
+              loadGallery();
+              setTimeout(function(){ msg.className = 'gal-msg'; }, 3500);
+            } else {
+              msg.className = 'gal-msg err';
+              msg.textContent = '⚠️ ' + (res.error || 'Не получилось загрузить фото');
+            }
+          })
+          .catch(function(){
+            clearInterval(timer); prog.style.display = 'none'; bar.style.width = '0%';
+            btn.disabled = false; btn.style.opacity = '';
+            msg.className = 'gal-msg err';
+            msg.textContent = '⚠️ Не получилось загрузить. Попробуйте фото поменьше или ещё раз.';
           });
       };
       reader.readAsDataURL(file);

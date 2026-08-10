@@ -68,7 +68,9 @@ if (!comSeeded) {
 }
 
 app.use(express.static(__dirname));
-app.use(express.json());
+// Лимит 15mb — чтобы модератор мог загружать большие фото с телефона
+// (base64 +33% от размера файла; серверный лимит на файл = 10 МБ)
+app.use(express.json({ limit: '15mb' }));
 
 // ── Кабинет модератора: секретный пароль ──
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'MilyDom2026!';
